@@ -1,0 +1,36 @@
+name: 347模拟题推送
+
+# 每周一~五推送当天模拟题（链接形式）。
+# GitHub schedule 为排队调度：声明 UTC 20:45（= 北京次日 04:45），靠延迟补偿到北京 6:30~7:40 送达。
+# UTC 周日~周四 20:45 = 北京 周一~周五 04:45 —— 正好覆盖工作日的推送。
+on:
+  schedule:
+    - cron: "45 20 * * 0-4"
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "填 1 = 只演练不发信"
+        required: false
+
+permissions:
+  contents: write
+
+jobs:
+  push:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: 推送今日模拟题
+        env:
+          SMTP_HOST: smtp.163.com
+          SMTP_PORT: "465"
+          SMTP_USER: ${{ vars.SMTP_USER }}
+          SMTP_PASS: ${{ secrets.SMTP_PASS }}
+          TO_EMAIL: ${{ vars.TO_EMAIL }}
+          SITE_BASE: https://snow-breeze.github.io/ynnu-347-mock
+          DRY_RUN: ${{ inputs.dry_run }}
+          GIT_PUSH_URL: https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
+        run: python3 push_mock.py
