@@ -97,7 +97,8 @@ def send(subject, html):
 
 
 def main():
-    today = now_cn().date()
+    _v = os.environ.get("TEST_DATE", "").strip()
+    today = datetime.date.fromisoformat(_v) if _v else now_cn().date()
     wd = "一二三四五六日"[today.weekday()]
     print(f"now(CN) {now_cn().isoformat(timespec='seconds')} | 周{wd} {today}")
     if today.weekday() >= 5:
